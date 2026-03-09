@@ -1,12 +1,12 @@
-"""Views for home_application."""
+"""Views for core."""
 import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
-from home_application.forms import BindUsernameForm
-from home_application.models import UserProfile
+from core.forms import BindUsernameForm
+from core.models import UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def index(request):
         profile = request.user.profile
         context["enterprise_username"] = profile.enterprise_username
     except UserProfile.DoesNotExist:
-        return redirect("home_application:bind_username")
+        return redirect("core:bind_username")
 
     # Get summary stats
     from subscription.models import GitLabProject, Subscription
@@ -32,7 +32,7 @@ def index(request):
     context["subscription_count"] = Subscription.objects.filter(user=request.user).count()
     context["recent_projects"] = GitLabProject.objects.filter(is_active=True).order_by("-created_at")[:5]
 
-    return render(request, "home_application/index.html", context)
+    return render(request, "core/index.html", context)
 
 
 @login_required
@@ -45,7 +45,7 @@ def bind_username(request):
     # If already bound, redirect to home
     try:
         request.user.profile
-        return redirect("home_application:index")
+        return redirect("core:index")
     except UserProfile.DoesNotExist:
         pass
 
@@ -63,7 +63,7 @@ def bind_username(request):
                 request.user.username,
                 enterprise_username,
             )
-            return redirect("home_application:index")
+            return redirect("core:index")
     else:
         form = BindUsernameForm()
 

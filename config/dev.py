@@ -31,6 +31,6 @@ ENABLE_MOCK_LOGIN = os.environ.get("ENABLE_MOCK_LOGIN", "False").lower() == "tru
 # Override blueapps middleware if mock login is enabled
 if ENABLE_MOCK_LOGIN:
     MIDDLEWARE = [m for m in MIDDLEWARE if "blueapps" not in m]  # noqa: F405
-    MIDDLEWARE.append("home_application.middleware.MockLoginMiddleware")
+    MIDDLEWARE.append("core.middleware.MockLoginMiddleware")
 
 # Static files served directly in development (same as default, explicitly set for clarity)

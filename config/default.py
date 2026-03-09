@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     # Project apps
-    "home_application",
+    "core",
     "subscription",
 ]
 
@@ -65,7 +65,7 @@ MIDDLEWARE = [
     # BlueKing login middleware
     "blueapps.account.middlewares.LoginRequiredMiddleware",
     # Enterprise username binding middleware
-    "home_application.middleware.EnterpriseUsernameBindingMiddleware",
+    "core.middleware.EnterpriseUsernameBindingMiddleware",
 ]
 
 ROOT_URLCONF = "urls"
@@ -82,7 +82,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.static",
-                "home_application.context_processors.bk_context",
+                "core.context_processors.bk_context",
             ],
         },
     },
@@ -217,7 +217,7 @@ LOGGING = {
             "level": LOG_LEVEL,
             "propagate": False,
         },
-        "home_application": {
+        "core": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
             "propagate": False,

@@ -1,4 +1,4 @@
-"""Middleware for home_application."""
+"""Middleware for core."""
 import logging
 
 from django.conf import settings
@@ -30,12 +30,12 @@ class EnterpriseUsernameBindingMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated and not self._is_exempt(request.path):
-            from home_application.models import UserProfile
+            from core.models import UserProfile
 
             try:
                 request.user.profile
             except UserProfile.DoesNotExist:
-                return redirect("home_application:bind_username")
+                return redirect("core:bind_username")
 
         response = self.get_response(request)
         return response

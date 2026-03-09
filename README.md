@@ -53,7 +53,7 @@
 │   ├── dev.py                # 开发环境配置
 │   ├── stag.py               # 测试环境配置
 │   └── prod.py               # 生产环境配置
-├── home_application/          # 首页应用
+├── core/                      # 核心应用（首页与用户绑定）
 │   ├── models.py             # UserProfile模型（企业用户名绑定）
 │   ├── middleware.py         # 企业用户名绑定中间件
 │   └── views.py              # 首页和用户名绑定视图

@@ -1,4 +1,4 @@
-"""Context processors for home_application."""
+"""Context processors for core."""
 from django.conf import settings
 
 
