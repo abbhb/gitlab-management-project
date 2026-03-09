@@ -26,6 +26,8 @@ venv/
 env/
 .env/
 .python-version
+frontend/node_modules/
+frontend/.cache/
 
 # IDEs
 .idea/

@@ -18,7 +18,14 @@ modules:
     language: Python
     spec:
       processes:
-        web:
-          command: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
+        - name: web
+          procCommand: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
+          services:
+            - name: web
+              protocol: TCP
+              exposedType:
+                name: bk/http
+              targetPort: 5000
+              port: 80
       scripts:
         pre_release_hook: bin/pre-release.sh

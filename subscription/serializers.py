@@ -12,6 +12,7 @@ class GitLabProjectSerializer(serializers.ModelSerializer):
 
     created_by_username = serializers.CharField(source="created_by.username", read_only=True)
     subscription_count = serializers.SerializerMethodField()
+    user_sub_count = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
         model = GitLabProject
@@ -28,6 +29,7 @@ class GitLabProjectSerializer(serializers.ModelSerializer):
             "updated_at",
             "is_active",
             "subscription_count",
+            "user_sub_count",
         ]
         read_only_fields = ["id", "created_by", "created_at", "updated_at"]
         extra_kwargs = {
@@ -35,6 +37,9 @@ class GitLabProjectSerializer(serializers.ModelSerializer):
         }
 
     def get_subscription_count(self, obj):
+        annotated_value = getattr(obj, "subscription_count", None)
+        if annotated_value is not None:
+            return annotated_value
         return obj.subscriptions.count()
 
 

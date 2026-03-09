@@ -43,11 +43,13 @@
 
 ```
 ├── app_desc.yml               # 蓝盾/蓝鲸构建兼容所需的应用描述文件
+├── Dockerfile                 # 一条命令完成前端构建 + Django 打包的容器镜像定义
 ├── runtime.txt                # Python运行时版本（蓝鲸原生构建使用 Python 3.6.9）
 ├── requirements.txt           # Python依赖
 ├── manage.py                  # Django管理脚本
 ├── wsgi.py                    # WSGI入口
 ├── urls.py                    # 根URL配置
+├── frontend/                  # 基于 Vue2 + @canway/cw-magic-vue 的前端工程
 ├── config/                    # 配置文件
 │   ├── default.py            # 基础配置
 │   ├── dev.py                # 开发环境配置
@@ -99,6 +101,35 @@ python manage.py runserver
 
 访问 http://localhost:8000 即可看到应用界面。
 
+### 2.1 前端构建（cw-magic-vue）
+
+前端已拆分到 [frontend/package.json](frontend/package.json)，使用 Vue 2 + `@canway/cw-magic-vue`。构建后会自动输出到 Django 可直接使用的位置：
+
+- JS/CSS 产物： [static/frontend](static/frontend)
+- 页面模板： [templates/frontend/app.html](templates/frontend/app.html)
+
+说明：当前仓库为了保证外网环境也能直接安装，使用了 npm alias 方式把 `@canway/cw-magic-vue` 映射到公开可安装的 `bk-magic-vue` 兼容包；组件前缀和使用方式仍保持 `bk-` 风格。
+
+如果你本机通过 `nvm` 管理 Node，可以只在当前终端切换版本，不需要改动现有 Python 运行时或仓库里的 `runtime.txt`：
+
+```bash
+nvm use 18
+npm --prefix frontend install
+npm --prefix frontend run build
+```
+
+如果你希望一条命令完成依赖安装与构建，也可以直接执行：
+
+```bash
+npm --prefix frontend install && npm --prefix frontend run build
+```
+
+说明：
+
+1. 不会修改当前项目的 Python 版本配置。
+2. 构建完成后，Django 页面会自动切换到新的 Vue 前端壳层。
+3. 如需本地单独调试前端，可先启动 Django，再执行 `npm --prefix frontend run serve`。
+
 ### 3. 蓝鲸PaaS部署
 
 1. 在蓝鲸PaaS控制台创建应用（应用ID: `bk_gitlab_sub`）
@@ -109,6 +140,34 @@ python manage.py runserver
 5. 部署应用
 
 说明：蓝鲸 SaaS 原生构建环境仅支持 Python 3.6.9。若将 `runtime.txt` 或依赖版本升级到 3.7+ / 3.8+ 才支持的区间，构建阶段会直接失败。
+
+### 3.1 Docker 一键构建
+
+仓库根目录已提供 [Dockerfile](Dockerfile)，使用多阶段构建：
+
+1. 第一阶段使用 Node 18 构建 Vue 前端。
+2. 第二阶段使用 Python 3.6 安装 Django 依赖。
+3. 自动执行前端产物复制与 `collectstatic`。
+
+直接在仓库根目录执行：
+
+```bash
+docker build -t bk-gitlab-sub:latest .
+```
+
+如需启动容器，可继续执行：
+
+```bash
+docker run --rm -p 8000:8000 \
+  -e DJANGO_SETTINGS_MODULE=config.prod \
+  -e MYSQL_NAME=bk_gitlab_sub \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=your-password \
+  -e MYSQL_HOST=host.docker.internal \
+  bk-gitlab-sub:latest
+```
+
+这套流程不会动你本机已有的 Node 版本；即使你平时通过 `nvm` 管理版本，也只在容器里使用固定的 Node 18 来完成前端打包。
 
 ### 4. 环境变量配置
 

@@ -1,6 +1,7 @@
 """API views for subscription app."""
 import logging
 
+from django.db.models import Count, Q
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +23,30 @@ from subscription.utils import api_error, api_success, match_changed_files_to_su
 logger = logging.getLogger(__name__)
 
 
+class DashboardSummaryAPIView(APIView):
+    """API endpoint for the frontend dashboard summary."""
+
+    def get(self, request):
+        if not is_allowed(request, ACTION_VIEW_PROJECT):
+            return api_error("无权限查看首页数据", code=403)
+
+        recent_projects = GitLabProject.objects.filter(is_active=True).order_by("-created_at")[:5]
+        try:
+            enterprise_username = request.user.profile.enterprise_username
+        except Exception:
+            enterprise_username = ""
+
+        return api_success(
+            data={
+                "enterprise_username": enterprise_username,
+                "project_count": GitLabProject.objects.filter(is_active=True).count(),
+                "subscription_count": Subscription.objects.filter(user=request.user).count(),
+                "can_manage": is_allowed(request, ACTION_MANAGE_PROJECT),
+                "recent_projects": GitLabProjectSerializer(recent_projects, many=True).data,
+            }
+        )
+
+
 class ProjectListAPIView(APIView):
     """
     API endpoint for listing and creating GitLab projects.
@@ -34,9 +59,19 @@ class ProjectListAPIView(APIView):
         if not is_allowed(request, ACTION_VIEW_PROJECT):
             return api_error("无权限查看项目列表", code=403)
 
-        projects = GitLabProject.objects.filter(is_active=True).order_by("-created_at")
+        projects = (
+            GitLabProject.objects.filter(is_active=True)
+            .annotate(subscription_count=Count("subscriptions", distinct=True))
+            .annotate(user_sub_count=Count("subscriptions", filter=Q(subscriptions__user=request.user), distinct=True))
+            .order_by("-created_at")
+        )
         serializer = GitLabProjectSerializer(projects, many=True)
-        return api_success(data=serializer.data)
+        return api_success(
+            data={
+                "projects": serializer.data,
+                "can_manage": is_allowed(request, ACTION_MANAGE_PROJECT),
+            }
+        )
 
     def post(self, request):
         if not is_allowed(request, ACTION_MANAGE_PROJECT):
@@ -76,7 +111,14 @@ class ProjectDetailAPIView(APIView):
             return api_error("项目不存在", code=404)
 
         serializer = GitLabProjectSerializer(project)
-        return api_success(data=serializer.data)
+        subscriptions = Subscription.objects.filter(user=request.user, project=project).order_by("-created_at")
+        return api_success(
+            data={
+                "project": serializer.data,
+                "subscriptions": SubscriptionSerializer(subscriptions, many=True).data,
+                "can_manage": is_allowed(request, ACTION_MANAGE_PROJECT),
+            }
+        )
 
     def put(self, request, project_id):
         if not is_allowed(request, ACTION_MANAGE_PROJECT):
@@ -169,6 +211,10 @@ class SubscriptionListAPIView(APIView):
 
     def get(self, request):
         subscriptions = Subscription.objects.filter(user=request.user).select_related("project")
+        project_id = request.query_params.get("project")
+        if project_id:
+            subscriptions = subscriptions.filter(project_id=project_id)
+        subscriptions = subscriptions.order_by("-created_at")
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return api_success(data=serializer.data)
 

@@ -4,6 +4,7 @@ from django.urls import path
 from subscription import api_views
 
 urlpatterns = [
+    path("dashboard/summary/", api_views.DashboardSummaryAPIView.as_view(), name="api_dashboard_summary"),
     # Project management API
     path("projects/", api_views.ProjectListAPIView.as_view(), name="api_project_list"),
     path("projects/<int:project_id>/", api_views.ProjectDetailAPIView.as_view(), name="api_project_detail"),
