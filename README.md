@@ -42,7 +42,7 @@
 ## 目录结构
 
 ```
-├── app.yml                    # 蓝鲸PaaS应用描述文件
+├── app_desc.yml               # 蓝盾/蓝鲸构建兼容所需的应用描述文件
 ├── runtime.txt                # Python运行时版本（蓝鲸原生构建使用 Python 3.6.9）
 ├── requirements.txt           # Python依赖
 ├── manage.py                  # Django管理脚本
@@ -103,6 +103,7 @@ python manage.py runserver
 
 1. 在蓝鲸PaaS控制台创建应用（应用ID: `bk_gitlab_sub`）
 2. 将代码推送到蓝鲸代码仓库或通过S-mart上传
+  - 根目录同时保留 `app.yml` 与 `app_desc.yml`，兼容不同蓝鲸 SaaS 构建校验要求
 3. 确认 `runtime.txt` 使用 `python-3.6.9`，并保持依赖版本兼容 Python 3.6
 4. 配置环境变量（见下方）
 5. 部署应用

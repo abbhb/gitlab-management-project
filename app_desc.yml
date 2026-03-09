@@ -18,7 +18,6 @@ modules:
     spec:
       processes:
         web:
-          command: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile -
-            --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
+          command: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
       scripts:
         pre_release_hook: bin/pre-release.sh
