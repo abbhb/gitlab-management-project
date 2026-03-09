@@ -1,0 +1,1 @@
+web: gunicorn wsgi -w 4 -b 0.0.0.0:${PORT:-8000} --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
