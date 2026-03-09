@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}添加订阅 - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .file-tree-item { cursor: pointer; }
+    .file-tree-item:hover { background-color: #f8f9fa; }
+    .file-tree-item.selected { background-color: #d1e7dd; }
+    .tree-dir { color: #0d6efd; }
+    .tree-file { color: #6c757d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home_application:index' %}">首页</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'subscription:project_list' %}">项目列表</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'subscription:project_detail' project.id %}">{{ project.name }}</a></li>
+        <li class="breadcrumb-item active">添加订阅</li>
+    </ol>
+</nav>
+
+<h3 class="mb-4">添加订阅 - {{ project.name }}</h3>
+
+<div class="row">
+    <!-- File Tree Browser -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-2">GitLab文件树浏览</h6>
+                {% if branches %}
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="branchSelect">分支</label>
+                    <select id="branchSelect" class="form-select form-select-sm">
+                        {% for branch in branches %}
+                        <option value="{{ branch.name }}" {% if branch.name == project.default_branch %}selected{% endif %}>
+                            {{ branch.name }}{% if branch.default %} (默认){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" id="loadTreeBtn">刷新</button>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body p-0" style="max-height: 450px; overflow-y: auto;">
+                {% if file_tree %}
+                <ul class="list-group list-group-flush" id="fileTree">
+                    {% for item in file_tree %}
+                    <li class="list-group-item file-tree-item py-1 px-3"
+                        data-path="{{ item.path }}"
+                        data-type="{% if item.type == 'tree' %}directory{% else %}file{% endif %}"
+                        onclick="selectPath('{{ item.path }}', '{% if item.type == 'tree' %}directory{% else %}file{% endif %}')">
+                        {% if item.type == 'tree' %}
+                        <span class="tree-dir">📁 {{ item.name }}/</span>
+                        {% else %}
+                        <span class="tree-file">📄 {{ item.name }}</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-3 text-center text-muted">
+                    {% if branches %}
+                    <small>无法加载文件树，请手动输入路径</small>
+                    {% else %}
+                    <small>GitLab连接不可用，请手动输入路径</small>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer text-muted">
+                <small>💡 点击条目可自动填入路径</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Form -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">订阅配置</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.path.id_for_label }}" class="form-label fw-bold">
+                            {{ form.path.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.path }}
+                        {% if form.path.help_text %}
+                        <div class="form-text">{{ form.path.help_text }}</div>
+                        {% endif %}
+                        {% if form.path.errors %}
+                        <div class="invalid-feedback d-block">{{ form.path.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.path_type.id_for_label }}" class="form-label fw-bold">
+                            {{ form.path_type.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.path_type }}
+                        {% if form.path_type.errors %}
+                        <div class="invalid-feedback d-block">{{ form.path_type.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.branch.id_for_label }}" class="form-label fw-bold">
+                            {{ form.branch.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.branch }}
+                        {% if form.branch.help_text %}
+                        <div class="form-text">{{ form.branch.help_text }}</div>
+                        {% endif %}
+                        {% if form.branch.errors %}
+                        <div class="invalid-feedback d-block">{{ form.branch.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors|join:", " }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">保存订阅</button>
+                        <a href="{% url 'subscription:project_detail' project.id %}" class="btn btn-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card mt-3 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">订阅说明</h6>
+                <ul class="small mb-0">
+                    <li><strong>目录订阅</strong>：当MR中包含该目录下任意文件的变更时，您将收到通知</li>
+                    <li><strong>文件订阅</strong>：只有当MR恰好修改了该文件时，您才会收到通知</li>
+                    <li><strong>目标分支</strong>：MR合入的目标分支，通常为 <code>main</code> 或 <code>master</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const projectId = {{ project.id }};
+
+    function selectPath(path, pathType) {
+        // Fill form fields
+        document.getElementById('{{ form.path.auto_id }}').value = pathType === 'directory' ? path + '/' : path;
+        document.getElementById('{{ form.path_type.auto_id }}').value = pathType;
+
+        // Visual feedback
+        document.querySelectorAll('.file-tree-item').forEach(el => el.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+    }
+
+    // Load file tree for selected branch
+    document.getElementById('loadTreeBtn')?.addEventListener('click', function() {
+        const branch = document.getElementById('branchSelect').value;
+        const url = `/api/projects/${projectId}/tree/?branch=${encodeURIComponent(branch)}`;
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (data.result) {
+                    updateFileTree(data.data, branch);
+                }
+            })
+            .catch(err => console.error('Failed to load tree:', err));
+    });
+
+    // Auto-sync branch selection to form
+    document.getElementById('branchSelect')?.addEventListener('change', function() {
+        document.getElementById('{{ form.branch.auto_id }}').value = this.value;
+    });
+
+    function updateFileTree(items, branch) {
+        const treeEl = document.getElementById('fileTree');
+        if (!treeEl) return;
+
+        treeEl.innerHTML = items.map(item => {
+            const pathType = item.type === 'tree' ? 'directory' : 'file';
+            const icon = item.type === 'tree' ? '📁' : '📄';
+            const displayName = item.type === 'tree' ? item.name + '/' : item.name;
+            const cssClass = item.type === 'tree' ? 'tree-dir' : 'tree-file';
+            return `<li class="list-group-item file-tree-item py-1 px-3"
+                       data-path="${item.path}" data-type="${pathType}"
+                       onclick="selectPath('${item.path}', '${pathType}')">
+                       <span class="${cssClass}">${icon} ${displayName}</span>
+                   </li>`;
+        }).join('');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+local_settings.py
+media/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+.python-version
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# BlueKing deployment artifacts
+nohup.out
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/

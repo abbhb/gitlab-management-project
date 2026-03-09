@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} - 订阅管理{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home_application:index' %}">首页</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'subscription:project_list' %}">项目列表</a></li>
+        <li class="breadcrumb-item active">{{ project.name }}</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col">
+        <h2>{{ project.name }}</h2>
+        {% if project.description %}
+        <p class="text-muted">{{ project.description }}</p>
+        {% endif %}
+        <div class="d-flex gap-3">
+            <span class="badge bg-secondary fs-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                    <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                </svg>
+                {{ project.default_branch }}
+            </span>
+            <a href="{{ project.gitlab_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                在GitLab中查看
+            </a>
+            {% if can_manage %}
+            <a href="{% url 'subscription:project_edit' project.id %}" class="btn btn-sm btn-outline-warning">
+                编辑项目
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'subscription:subscription_create' project.id %}" class="btn btn-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            添加订阅
+        </a>
+    </div>
+</div>
+
+<!-- My Subscriptions for this project -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">我的订阅 ({{ subscriptions.count }} 个)</h5>
+    </div>
+    {% if subscriptions %}
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>订阅路径</th>
+                        <th>路径类型</th>
+                        <th>目标分支</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscriptions %}
+                    <tr>
+                        <td>
+                            <code class="fs-6">{{ sub.path }}</code>
+                        </td>
+                        <td>
+                            {% if sub.path_type == 'directory' %}
+                            <span class="badge bg-info">📁 目录</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">📄 文件</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-secondary">{{ sub.branch }}</span></td>
+                        <td><small>{{ sub.created_at|date:"Y-m-d H:i" }}</small></td>
+                        <td>
+                            <form method="post" action="{% url 'subscription:subscription_delete' sub.id %}"
+                                  onsubmit="return confirm('确定删除此订阅？')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card-body text-center py-4">
+        <p class="text-muted mb-3">您还没有订阅此项目的任何路径</p>
+        <a href="{% url 'subscription:subscription_create' project.id %}" class="btn btn-success">
+            立即添加订阅
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

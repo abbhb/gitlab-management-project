@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}绑定企业用户名 - GitLab订阅管理{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    绑定企业用户名
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info mb-4">
+                    <strong>首次登录需要绑定企业用户名</strong>
+                    <p class="mb-0 mt-1">
+                        企业用户名是您在公司内部使用的账号标识，用于在MR变更通知中识别您的身份。
+                        绑定后，当您订阅的目录/文件发生变更时，系统会使用此用户名通知流水线。
+                    </p>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.enterprise_username.id_for_label }}" class="form-label fw-bold">
+                            企业用户名 <span class="text-danger">*</span>
+                        </label>
+                        {{ form.enterprise_username }}
+                        {% if form.enterprise_username.help_text %}
+                        <div class="form-text text-muted">{{ form.enterprise_username.help_text }}</div>
+                        {% endif %}
+                        {% if form.enterprise_username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.enterprise_username.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors|join:", " }}
+                    </div>
+                    {% endif %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            确认绑定
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted text-center">
+                <small>当前蓝鲸账号：<strong>{{ request.user.username }}</strong></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+/* GitLab订阅管理 - 主样式文件 */
+
+/* Global */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+main.container {
+    flex: 1;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* BlueKing Form Input Style */
+.bk-form-input {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.bk-form-input:focus {
+    border-color: #0d6efd;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.bk-form-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.bk-form-select {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+/* Stats */
+.display-4 {
+    font-weight: 700;
+}
+
+/* Code blocks */
+code {
+    background-color: #f8f9fa;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-size: 0.875em;
+    color: #d63384;
+}
+
+/* File tree */
+.file-tree-item {
+    border-bottom: 1px solid #f0f0f0 !important;
+    font-size: 0.875rem;
+}
+
+.file-tree-item:last-child {
+    border-bottom: none !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* Table */
+.table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+}
+
+/* Badge */
+.badge {
+    font-weight: 500;
+}
+
+/* Footer */
+.footer {
+    border-top: 1px solid #e9ecef;
+}
+
+/* Alert customizations */
+.alert {
+    border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+}

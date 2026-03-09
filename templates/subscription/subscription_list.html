@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}我的订阅 - GitLab订阅管理{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2>我的订阅</h2>
+        <p class="text-muted">管理您关注的所有目录和文件变更订阅</p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'subscription:project_list' %}" class="btn btn-primary">
+            添加新订阅
+        </a>
+    </div>
+</div>
+
+{% if subscriptions %}
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>项目</th>
+                        <th>订阅路径</th>
+                        <th>路径类型</th>
+                        <th>目标分支</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscriptions %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'subscription:project_detail' sub.project.id %}" class="text-decoration-none fw-bold">
+                                {{ sub.project.name }}
+                            </a>
+                        </td>
+                        <td><code>{{ sub.path }}</code></td>
+                        <td>
+                            {% if sub.path_type == 'directory' %}
+                            <span class="badge bg-info">📁 目录</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">📄 文件</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-secondary">{{ sub.branch }}</span></td>
+                        <td><small class="text-muted">{{ sub.created_at|date:"Y-m-d H:i" }}</small></td>
+                        <td>
+                            <form method="post" action="{% url 'subscription:subscription_delete' sub.id %}"
+                                  onsubmit="return confirm('确定删除订阅 {{ sub.path }}？')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        共 {{ subscriptions.count }} 个订阅
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <h5 class="text-muted">您还没有任何订阅</h5>
+    <p class="text-muted">前往项目列表，选择您关心的目录或文件添加订阅</p>
+    <a href="{% url 'subscription:project_list' %}" class="btn btn-primary">浏览项目列表</a>
+</div>
+{% endif %}
+{% endblock %}

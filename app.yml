@@ -1,0 +1,24 @@
+spec_version: 2
+app_version: "1.0.0"
+app:
+  bk_app_code: bk_gitlab_sub
+  bk_app_name: "GitLab订阅管理"
+  bk_app_secret: "${BK_APP_SECRET}"
+  market:
+    category: "运维工具"
+    introduction: "基于目录或文件变更的GitLab MR订阅管理工具，支持按需订阅关注的目录，当MR发生相关变更时推送通知。"
+    display_options:
+      width: 1280
+      height: 720
+      is_win_maximize: true
+      overview: "static/images/overview.png"
+modules:
+  default:
+    language: Python
+    spec:
+      processes:
+        web:
+          command: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile -
+            --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
+      scripts:
+        pre_release_hook: bin/pre-release.sh

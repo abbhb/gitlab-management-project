@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}项目列表 - GitLab订阅管理{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2>GitLab项目列表</h2>
+        <p class="text-muted">选择项目，管理您的目录/文件订阅</p>
+    </div>
+    {% if can_manage %}
+    <div class="col-auto">
+        <a href="{% url 'subscription:project_create' %}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            添加项目
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% if projects %}
+<div class="row g-4">
+    {% for project in projects %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 {% if project.user_sub_count > 0 %}border-success{% endif %}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 text-truncate" title="{{ project.name }}">
+                    {{ project.name }}
+                </h5>
+                {% if project.user_sub_count > 0 %}
+                <span class="badge bg-success">已订阅 {{ project.user_sub_count }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if project.description %}
+                <p class="card-text text-muted small mb-2">{{ project.description|truncatechars:80 }}</p>
+                {% endif %}
+                <div class="mb-2">
+                    <small class="text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                            <path d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07z"/>
+                        </svg>
+                        GitLab: 
+                        <a href="{{ project.gitlab_url }}" target="_blank" class="text-decoration-none">
+                            {{ project.gitlab_url|truncatechars:35 }}
+                        </a>
+                    </small>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <span class="badge bg-secondary me-1">{{ project.default_branch }}</span>
+                        项目ID: {{ project.gitlab_project_id }}
+                    </small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        共 {{ project.subscription_count }} 个订阅
+                    </small>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'subscription:project_detail' project.id %}" class="btn btn-outline-primary">
+                            管理订阅
+                        </a>
+                        {% if can_manage %}
+                        <a href="{% url 'subscription:project_edit' project.id %}" class="btn btn-outline-secondary">
+                            编辑
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>创建于 {{ project.created_at|date:"Y-m-d" }}</small>
+                {% if project.created_by %}
+                <small class="ms-2">by {{ project.created_by.username }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="text-muted mb-3" viewBox="0 0 16 16">
+        <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+    </svg>
+    <h5 class="text-muted">暂无项目</h5>
+    {% if can_manage %}
+    <p class="text-muted">点击右上角"添加项目"创建第一个GitLab项目</p>
+    {% else %}
+    <p class="text-muted">请联系管理员添加GitLab项目</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

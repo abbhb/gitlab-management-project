@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}首页 - GitLab订阅管理{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            欢迎使用 GitLab订阅管理
+            <small class="text-muted fs-5">企业用户名: {{ enterprise_username }}</small>
+        </h1>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 text-primary">{{ project_count }}</h2>
+                <p class="card-text text-muted">可用项目</p>
+                <a href="{% url 'subscription:project_list' %}" class="btn btn-outline-primary btn-sm">
+                    查看项目列表
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 text-success">{{ subscription_count }}</h2>
+                <p class="card-text text-muted">我的订阅数</p>
+                <a href="{% url 'subscription:subscription_list' %}" class="btn btn-outline-success btn-sm">
+                    管理我的订阅
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 text-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                    </svg>
+                </h2>
+                <p class="card-text text-muted">通知说明</p>
+                <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#howItWorksModal">
+                    了解工作原理
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Projects -->
+{% if recent_projects %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">最新项目</h5>
+                <a href="{% url 'subscription:project_list' %}" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>项目名称</th>
+                                <th>GitLab地址</th>
+                                <th>默认分支</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in recent_projects %}
+                            <tr>
+                                <td>
+                                    <strong>{{ project.name }}</strong>
+                                    {% if project.description %}
+                                    <br><small class="text-muted">{{ project.description|truncatechars:50 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ project.gitlab_url }}" target="_blank" class="text-decoration-none">
+                                        {{ project.gitlab_url|truncatechars:40 }}
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ project.default_branch }}</span></td>
+                                <td>{{ project.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'subscription:project_detail' project.id %}"
+                                       class="btn btn-sm btn-outline-primary">订阅管理</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- How It Works Modal -->
+<div class="modal fade" id="howItWorksModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">工作原理</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ol class="list-group list-group-numbered mb-3">
+                    <li class="list-group-item">
+                        <strong>管理员添加项目</strong>：管理员将GitLab项目注册到本系统
+                    </li>
+                    <li class="list-group-item">
+                        <strong>用户创建订阅</strong>：您可以选择关心的目录或文件路径，添加订阅
+                    </li>
+                    <li class="list-group-item">
+                        <strong>CI/CD流水线触发</strong>：当GitLab MR发生时，流水线自动调用运行端脚本
+                    </li>
+                    <li class="list-group-item">
+                        <strong>智能匹配通知</strong>：系统分析变更文件，找出订阅了相关路径的用户，返回通知列表
+                    </li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>运行端脚本使用示例：</strong>
+                    <pre class="mb-0 mt-2"><code>python gitlab_runner.py &lt;project_id&gt; '["src/main.py", "docs/README.md"]'</code></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
