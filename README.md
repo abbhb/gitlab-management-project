@@ -43,7 +43,7 @@
 
 ```
 ├── app.yml                    # 蓝鲸PaaS应用描述文件
-├── runtime.txt                # Python运行时版本
+├── runtime.txt                # Python运行时版本（蓝鲸原生构建使用 Python 3.6.9）
 ├── requirements.txt           # Python依赖
 ├── manage.py                  # Django管理脚本
 ├── wsgi.py                    # WSGI入口
@@ -103,8 +103,11 @@ python manage.py runserver
 
 1. 在蓝鲸PaaS控制台创建应用（应用ID: `bk_gitlab_sub`）
 2. 将代码推送到蓝鲸代码仓库或通过S-mart上传
-3. 配置环境变量（见下方）
-4. 部署应用
+3. 确认 `runtime.txt` 使用 `python-3.6.9`，并保持依赖版本兼容 Python 3.6
+4. 配置环境变量（见下方）
+5. 部署应用
+
+说明：蓝鲸 SaaS 原生构建环境仅支持 Python 3.6.9。若将 `runtime.txt` 或依赖版本升级到 3.7+ / 3.8+ 才支持的区间，构建阶段会直接失败。
 
 ### 4. 环境变量配置
 
