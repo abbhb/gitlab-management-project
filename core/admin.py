@@ -1,7 +1,7 @@
-"""Admin configuration for home_application."""
+"""Admin configuration for core."""
 from django.contrib import admin
 
-from home_application.models import UserProfile
+from core.models import UserProfile
 
 
 @admin.register(UserProfile)

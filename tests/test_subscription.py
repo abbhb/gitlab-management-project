@@ -10,7 +10,7 @@ os.environ.setdefault("BK_IAM_SKIP", "True")
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from home_application.models import UserProfile
+from core.models import UserProfile
 from subscription.models import GitLabProject, Subscription
 from subscription.utils import match_changed_files_to_subscriptions
 

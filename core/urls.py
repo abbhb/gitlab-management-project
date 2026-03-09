@@ -1,9 +1,9 @@
-"""URL configuration for home_application."""
+"""URL configuration for core."""
 from django.urls import path
 
-from home_application import views
+from core import views
 
-app_name = "home_application"
+app_name = "core"
 
 urlpatterns = [
     path("", views.index, name="index"),

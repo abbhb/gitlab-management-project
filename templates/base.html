@@ -14,7 +14,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home_application:index' %}">
+            <a class="navbar-brand" href="{% url 'core:index' %}">
                 <img src="{{ STATIC_URL }}images/logo.png" alt="BK" height="30" class="d-inline-block align-top me-2"
                      onerror="this.style.display='none'">
                 GitLab订阅管理
@@ -27,7 +27,7 @@
                     {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
-                           href="{% url 'home_application:index' %}">首页</a>
+                           href="{% url 'core:index' %}">首页</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'project' in request.resolver_match.url_name %}active{% endif %}"

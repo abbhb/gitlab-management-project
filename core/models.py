@@ -1,4 +1,4 @@
-"""Models for home_application."""
+"""Models for core."""
 from django.contrib.auth import get_user_model
 from django.db import models
 

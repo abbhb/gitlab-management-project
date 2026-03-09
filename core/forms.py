@@ -1,4 +1,4 @@
-"""Forms for home_application."""
+"""Forms for core."""
 from django import forms
 
 
@@ -19,7 +19,7 @@ class BindUsernameForm(forms.Form):
     )
 
     def clean_enterprise_username(self):
-        from home_application.models import UserProfile
+        from core.models import UserProfile
 
         username = self.cleaned_data["enterprise_username"].strip()
         if not username:

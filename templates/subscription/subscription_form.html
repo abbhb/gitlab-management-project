@@ -14,7 +14,7 @@
 {% block content %}
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'home_application:index' %}">首页</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:index' %}">首页</a></li>
         <li class="breadcrumb-item"><a href="{% url 'subscription:project_list' %}">项目列表</a></li>
         <li class="breadcrumb-item"><a href="{% url 'subscription:project_detail' project.id %}">{{ project.name }}</a></li>
         <li class="breadcrumb-item active">添加订阅</li>
