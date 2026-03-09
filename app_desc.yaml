@@ -13,19 +13,10 @@ app:
       height: 720
       is_win_maximize: true
       overview: "static/images/overview.png"
-modules:
-  default:
-    language: Python
-    spec:
-      processes:
-        - name: web
-          procCommand: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
-          services:
-            - name: web
-              protocol: TCP
-              exposedType:
-                name: bk/http
-              targetPort: 5000
-              port: 80
-      scripts:
-        pre_release_hook: bin/pre-release.sh
+module:
+  language: Python
+  processes:
+    web:
+      command: gunicorn wsgi -w 4 -b :$PORT --access-logfile - --error-logfile - --access-logformat '[%(h)s] %(u)s %(t)s "%(r)s" %(s)s %(D)s %(b)s'
+  scripts:
+    pre_release_hook: bin/pre-release.sh
