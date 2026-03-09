@@ -13,10 +13,11 @@ from django.urls import reverse
 class CoreAppConfigTestCase(SimpleTestCase):
     """Ensure the renamed core app keeps compatibility-sensitive config."""
 
-    def test_core_app_uses_professional_package_name(self):
+    def test_core_app_preserves_home_application_label(self):
         app_config = apps.get_app_config("home_application")
 
         self.assertEqual(app_config.name, "core")
+        self.assertEqual(app_config.label, "home_application")
 
     def test_core_url_namespace_resolves_expected_paths(self):
         self.assertEqual(reverse("core:index"), "/")
